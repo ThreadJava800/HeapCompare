@@ -1,38 +1,43 @@
 #include "binheap.h"
 
+#define createOfStream(num) FILE* heap##num = fopen("kheap/heap"#num".txt", "wb");
+
+#define addToVec(num) { heap##num, num },
+
 
 using namespace std::chrono;
 
+
 int main() {
-    std::ofstream binheap;
-    binheap.open("binheap.txt");
+    std::ofstream heap2;
+    heap2.open("binheap.txt");
 
     for (int i = 100000; i <= 10000000; i += 100000) {
-        long long timeSum = 0;
+        long dur = 0;
+        std::vector<int> values = generateArr(i);
+
         for (int j = 0; j < 5; j++) {
-            int* vals = generateCArr(i);
             Heap_t* heap = heapCtor(i);
 
-            auto start = high_resolution_clock::now();
+            auto start = high_resolution_clock::now(); 
             for (int m = 0; m < i; m++) {
-                heapAdd(heap, vals[m]);
+                heapAdd(heap, values[m]);
             }
-
             for (int m = 0; m < i; m++) {
-                vals[m] = extractMin(heap);
+                extractMin(heap);
             }
             auto end = high_resolution_clock::now();
 
-            auto duration = duration_cast<milliseconds>(end - start);
-            timeSum += duration.count();
+            dur += duration_cast<milliseconds>(end - start).count();
 
-            free(vals);
             heapDtor(heap);
         }
 
-        binheap << i << " " << (double) timeSum / 5 << '\n';
-        binheap.flush();
-    }
+        heap2 << i << ' ' << (double) dur / 5 << '\n';
+        heap2.flush();
+    } 
+
+    heap2.close();
 
     return 0;
 }
